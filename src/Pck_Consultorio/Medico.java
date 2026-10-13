@@ -7,9 +7,7 @@
 
 package Pck_Consultorio;
 
-import java.io.Serializable;
-
-public class Medico implements Serializable {
+public class Medico {
 
     protected String idEmpleado;
     protected String nombre;

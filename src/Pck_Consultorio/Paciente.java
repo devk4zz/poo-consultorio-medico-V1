@@ -4,12 +4,9 @@
  * Cruz Ortega Alexis
  * López Licona Victor Hugo
  */
-
 package Pck_Consultorio;
 
-import java.io.Serializable;
-
-public class Paciente implements Serializable {
+public class Paciente {
 
     private int noPaciente;
     private String nombre;

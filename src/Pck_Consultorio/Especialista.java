@@ -4,12 +4,9 @@
  * Cruz Ortega Alexis
  * López Licona Victor Hugo
  */
-
 package Pck_Consultorio;
 
-import java.io.Serializable;
-
-public class Especialista extends Medico implements Serializable {
+public class Especialista extends Medico {
 
     private String especialidad;
     private String area;
