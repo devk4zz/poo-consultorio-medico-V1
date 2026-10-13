@@ -4,10 +4,11 @@
  * Cruz Ortega Alexis
  * López Licona Victor Hugo
  */
-
 package Pck_Consultorio;
 
-public class Medico {
+import java.io.Serializable;
+
+public class Medico implements Serializable {
 
     protected String idEmpleado;
     protected String nombre;
@@ -17,10 +18,10 @@ public class Medico {
     protected Fecha fechaContratacion;
 
     public Medico() {
-        this.idEmpleado = "";
-        this.nombre = "";
-        this.direccion = "";
-        this.telefono = "";
+        this.idEmpleado = "SinId";
+        this.nombre = "Sin nombre";
+        this.direccion = "Sin dirección";
+        this.telefono = "0000000000";
         this.fechaNacimiento = new Fecha();
         this.fechaContratacion = new Fecha();
     }
@@ -48,32 +49,16 @@ public class Medico {
         this.fechaContratacion = new Fecha(diaCon, mesCon, anioCon);
     }
 
-    public String getIdEmpleado() {
-        return idEmpleado;
-    }
-
     public void setIdEmpleado(String idEmpleado) {
         this.idEmpleado = idEmpleado;
-    }
-
-    public String getNombre() {
-        return nombre;
     }
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
 
-    public String getDireccion() {
-        return direccion;
-    }
-
     public void setDireccion(String direccion) {
         this.direccion = direccion;
-    }
-
-    public String getTelefono() {
-        return telefono;
     }
 
     public void setTelefono(String telefono) {
@@ -81,12 +66,12 @@ public class Medico {
     }
 
     public boolean setFechaNacimiento(int dia, int mes, int anio) {
-        Fecha f = new Fecha(dia, mes, anio);
-        if (f.fechaCorrecta()) {
-            this.fechaNacimiento = f;
-            return true;
+        Fecha fecha = new Fecha(dia, mes, anio);
+        boolean correcta = fecha.fechaCorrecta();
+        if (correcta) {
+            this.fechaNacimiento = fecha;
         }
-        return false;
+        return correcta;
     }
 
     public void setFechaNacimiento(Fecha fechaNacimiento) {
@@ -94,16 +79,32 @@ public class Medico {
     }
 
     public boolean setFechaContratacion(int dia, int mes, int anio) {
-        Fecha f = new Fecha(dia, mes, anio);
-        if (f.fechaCorrecta()) {
-            this.fechaContratacion = f;
-            return true;
+        Fecha fecha = new Fecha(dia, mes, anio);
+        boolean correcta = fecha.fechaCorrecta();
+        if (correcta) {
+            this.fechaContratacion = fecha;
         }
-        return false;
+        return correcta;
     }
 
     public void setFechaContratacion(Fecha fechaContratacion) {
         this.fechaContratacion = fechaContratacion;
+    }
+
+    public String getIdEmpleado() {
+        return idEmpleado;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public String getTelefono() {
+        return telefono;
     }
 
     public String getFechaNacimiento() {
@@ -112,14 +113,6 @@ public class Medico {
 
     public String getFechaContratacion() {
         return fechaContratacion.getFecha();
-    }
-
-    public Fecha getFechaNacimientoObj() {
-        return fechaNacimiento;
-    }
-
-    public Fecha getFechaContratacionObj() {
-        return fechaContratacion;
     }
 
     public String getDatos() {

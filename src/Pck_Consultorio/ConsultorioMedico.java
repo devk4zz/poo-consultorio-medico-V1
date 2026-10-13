@@ -6,34 +6,41 @@
  */
 package Pck_Consultorio;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.awt.Font;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 public class ConsultorioMedico {
 
-    // ---------- VARIABLES ----------
+    private final String ARCHIVO_MEDICOS = "Medicos.dat";
+    private final String ARCHIVO_PACIENTES = "Pacientes.dat";
+    private final String ARCHIVO_CONSULTAS = "Consultas.dat";
+
     private int opcion;
     private String menu;
 
-    // ---------- OBJETOS ----------
     private ArrayList<Medico> listaMedicos = new ArrayList<>();
     private ArrayList<Paciente> listaPacientes = new ArrayList<>();
     private ArrayList<Consulta> listaConsultas = new ArrayList<>();
 
-    // main siempre debe ser static en Java, aqui solo se crea el objeto y se arranca
     public static void main(String[] args) {
         ConsultorioMedico programa = new ConsultorioMedico();
         programa.iniciar();
     }
 
-    // =====================================================
-    //                       MENU
-    // =====================================================
+    // Menú
     public void iniciar() {
+        boolean numeroValido;
+
         cargarMedicos();
         cargarPacientes();
         cargarConsultas();
@@ -63,65 +70,19 @@ public class ConsultorioMedico {
 
             if (menu == null) {
                 opcion = 17;
-            } else if (menu.isBlank()) {
+            } else if (menu.trim().isEmpty()) {
                 JOptionPane.showMessageDialog(null, "La opción no puede quedar en blanco");
-            } else if (!soloNumeros(menu) || menu.length() > 2) {
-                JOptionPane.showMessageDialog(null, "Inserte un número entre 1 y 17");
             } else {
-                opcion = Integer.parseInt(menu);
-                switch (opcion) {
-                    case 1:
-                        altaFamiliar();
-                        break;
-                    case 2:
-                        altaEspecialista();
-                        break;
-                    case 3:
-                        altaPaciente();
-                        break;
-                    case 4:
-                        altaConsulta();
-                        break;
-                    case 5:
-                        listarFamiliares();
-                        break;
-                    case 6:
-                        listarEspecialistas();
-                        break;
-                    case 7:
-                        listarPacientes();
-                        break;
-                    case 8:
-                        listarConsultas();
-                        break;
-                    case 9:
-                        detalleMedico(true);
-                        break;
-                    case 10:
-                        detalleMedico(false);
-                        break;
-                    case 11:
-                        detallePaciente();
-                        break;
-                    case 12:
-                        detalleConsulta();
-                        break;
-                    case 13:
-                        eliminarMedico(true);
-                        break;
-                    case 14:
-                        eliminarMedico(false);
-                        break;
-                    case 15:
-                        eliminarPaciente();
-                        break;
-                    case 16:
-                        eliminarConsulta();
-                        break;
-                    case 17:
-                        break;
-                    default:
-                        JOptionPane.showMessageDialog(null, "Inserte un número entre 1 y 17");
+                numeroValido = true;
+                try {
+                    opcion = Integer.parseInt(menu.trim());
+                } catch (NumberFormatException ex) {
+                    opcion = 0;
+                    numeroValido = false;
+                    JOptionPane.showMessageDialog(null, "Inserte un número entero entre 1 y 17");
+                }
+                if (numeroValido) {
+                    ejecutarOpcion();
                 }
             }
         } while (opcion != 17);
@@ -129,22 +90,77 @@ public class ConsultorioMedico {
         mostrarCopyright();
     }
 
-    // =====================================================
-    //                       ALTAS
-    // =====================================================
+    public void ejecutarOpcion() {
+        switch (opcion) {
+            case 1:
+                altaFamiliar();
+                break;
+            case 2:
+                altaEspecialista();
+                break;
+            case 3:
+                altaPaciente();
+                break;
+            case 4:
+                altaConsulta();
+                break;
+            case 5:
+                listarFamiliares();
+                break;
+            case 6:
+                listarEspecialistas();
+                break;
+            case 7:
+                listarPacientes();
+                break;
+            case 8:
+                listarConsultas();
+                break;
+            case 9:
+                detalleMedico(true);
+                break;
+            case 10:
+                detalleMedico(false);
+                break;
+            case 11:
+                detallePaciente();
+                break;
+            case 12:
+                detalleConsulta();
+                break;
+            case 13:
+                eliminarMedico(true);
+                break;
+            case 14:
+                eliminarMedico(false);
+                break;
+            case 15:
+                eliminarPaciente();
+                break;
+            case 16:
+                eliminarConsulta();
+                break;
+            case 17:
+                break;
+            default:
+                JOptionPane.showMessageDialog(null, "Inserte un número entre 1 y 17");
+        }
+    }
+
+    // Altas
     public void altaFamiliar() {
-        String id;
+        String idEmpleado;
         String nombre;
         String direccion;
         String telefono;
         String turno;
         int consultorio;
-        Fecha nacimiento;
-        Fecha contratacion;
-        General medico;
+        Fecha fechaNacimiento;
+        Fecha fechaContratacion;
+        General familiar;
 
-        id = pedirIdMedicoNuevo("Alta de médico familiar");
-        if (id == null) {
+        idEmpleado = pedirIdMedicoNuevo("Alta de médico familiar");
+        if (idEmpleado == null) {
             return;
         }
         nombre = pedirLetras("Nombre completo del médico:", "Nombre");
@@ -159,12 +175,12 @@ public class ConsultorioMedico {
         if (telefono == null) {
             return;
         }
-        nacimiento = fechaNacMedico();
-        if (nacimiento == null) {
+        fechaNacimiento = fechaNacMedico();
+        if (fechaNacimiento == null) {
             return;
         }
-        contratacion = fechaContratacion(nacimiento);
-        if (contratacion == null) {
+        fechaContratacion = fechaContratacion(fechaNacimiento);
+        if (fechaContratacion == null) {
             return;
         }
         turno = pedirTurno();
@@ -176,26 +192,27 @@ public class ConsultorioMedico {
             return;
         }
 
-        medico = new General(id, nombre, direccion, telefono, nacimiento, contratacion, turno, consultorio);
-        listaMedicos.add(medico);
+        familiar = new General(idEmpleado, nombre, direccion, telefono,
+                fechaNacimiento, fechaContratacion, turno, consultorio);
+        listaMedicos.add(familiar);
         guardarMedicos();
         JOptionPane.showMessageDialog(null, "Médico familiar registrado exitosamente");
     }
 
     public void altaEspecialista() {
-        String id;
+        String idEmpleado;
         String nombre;
         String direccion;
         String telefono;
         String especialidad;
         String area;
         String enfermera;
-        Fecha nacimiento;
-        Fecha contratacion;
-        Especialista medico;
+        Fecha fechaNacimiento;
+        Fecha fechaContratacion;
+        Especialista especialista;
 
-        id = pedirIdMedicoNuevo("Alta de médico especialista");
-        if (id == null) {
+        idEmpleado = pedirIdMedicoNuevo("Alta de médico especialista");
+        if (idEmpleado == null) {
             return;
         }
         nombre = pedirLetras("Nombre completo del médico:", "Nombre");
@@ -210,12 +227,12 @@ public class ConsultorioMedico {
         if (telefono == null) {
             return;
         }
-        nacimiento = fechaNacMedico();
-        if (nacimiento == null) {
+        fechaNacimiento = fechaNacMedico();
+        if (fechaNacimiento == null) {
             return;
         }
-        contratacion = fechaContratacion(nacimiento);
-        if (contratacion == null) {
+        fechaContratacion = fechaContratacion(fechaNacimiento);
+        if (fechaContratacion == null) {
             return;
         }
         especialidad = pedirLetras("Especialidad:", "Especialidad");
@@ -226,34 +243,34 @@ public class ConsultorioMedico {
         if (area == null) {
             return;
         }
-        enfermera = pedirLetras("Nombre de la enfermera(o):", "Enfermera");
+        enfermera = pedirLetras("Nombre de la enfermera(o):", "Enfermera(o)");
         if (enfermera == null) {
             return;
         }
 
-        medico = new Especialista(id, nombre, direccion, telefono, nacimiento, contratacion,
-                especialidad, area, enfermera);
-        listaMedicos.add(medico);
+        especialista = new Especialista(idEmpleado, nombre, direccion, telefono,
+                fechaNacimiento, fechaContratacion, especialidad, area, enfermera);
+        listaMedicos.add(especialista);
         guardarMedicos();
         JOptionPane.showMessageDialog(null, "Médico especialista registrado exitosamente");
     }
 
     public void altaPaciente() {
-        int numero = 0;
+        int noPaciente;
         boolean listo = false;
         String nombre;
         String direccion;
         String telefono;
         String correo;
-        Fecha nacimiento;
+        Fecha fechaNacimiento;
         Paciente paciente;
 
         do {
-            numero = pedirNumero("Número de paciente:", "Alta de paciente", 1, 999999999);
-            if (numero == -1) {
+            noPaciente = pedirNumero("Número de paciente:", "Alta de paciente", 1, 999999999);
+            if (noPaciente == -1) {
                 return;
             }
-            if (buscarPaciente(numero) != -1) {
+            if (buscarPaciente(noPaciente) != -1) {
                 JOptionPane.showMessageDialog(null, "El número de paciente ya está registrado");
             } else {
                 listo = true;
@@ -272,8 +289,8 @@ public class ConsultorioMedico {
         if (telefono == null) {
             return;
         }
-        nacimiento = fechaNacPaciente();
-        if (nacimiento == null) {
+        fechaNacimiento = fechaNacPaciente();
+        if (fechaNacimiento == null) {
             return;
         }
         correo = pedirCorreo();
@@ -281,27 +298,27 @@ public class ConsultorioMedico {
             return;
         }
 
-        paciente = new Paciente(numero, nombre, direccion, telefono, nacimiento, correo);
+        paciente = new Paciente(noPaciente, nombre, direccion, telefono, fechaNacimiento, correo);
         listaPacientes.add(paciente);
         guardarPacientes();
         JOptionPane.showMessageDialog(null, "Paciente registrado exitosamente");
     }
 
     public void altaConsulta() {
-        int numeroConsulta = 0;
-        int numeroPaciente = 0;
+        int noConsulta;
+        int noPaciente;
         boolean listo = false;
-        String id = "";
+        String idEmpleado;
         String diagnostico;
-        Fecha fecha;
+        Fecha fechaConsulta;
         Consulta consulta;
 
         do {
-            numeroConsulta = pedirNumero("Número de consulta:", "Alta de consulta", 1, 999999999);
-            if (numeroConsulta == -1) {
+            noConsulta = pedirNumero("Número de consulta:", "Alta de consulta", 1, 999999999);
+            if (noConsulta == -1) {
                 return;
             }
-            if (buscarConsulta(numeroConsulta) != -1) {
+            if (buscarConsulta(noConsulta) != -1) {
                 JOptionPane.showMessageDialog(null, "El número de consulta ya está registrado");
             } else {
                 listo = true;
@@ -310,12 +327,12 @@ public class ConsultorioMedico {
 
         listo = false;
         do {
-            id = pedirId("ID de empleado del médico asignado:", "Médico de consulta");
-            if (id == null) {
+            idEmpleado = pedirId("Id Empleado del médico asignado:", "Médico de la consulta");
+            if (idEmpleado == null) {
                 return;
             }
-            if (buscarMedico(id) == -1) {
-                JOptionPane.showMessageDialog(null, "El médico " + id + " no está registrado");
+            if (buscarMedico(idEmpleado) == -1) {
+                JOptionPane.showMessageDialog(null, "El médico " + idEmpleado + " no está registrado");
             } else {
                 listo = true;
             }
@@ -323,19 +340,19 @@ public class ConsultorioMedico {
 
         listo = false;
         do {
-            numeroPaciente = pedirNumero("Número de paciente:", "Paciente de consulta", 1, 999999999);
-            if (numeroPaciente == -1) {
+            noPaciente = pedirNumero("Número de paciente:", "Paciente de la consulta", 1, 999999999);
+            if (noPaciente == -1) {
                 return;
             }
-            if (buscarPaciente(numeroPaciente) == -1) {
-                JOptionPane.showMessageDialog(null, "El paciente " + numeroPaciente + " no está registrado");
+            if (buscarPaciente(noPaciente) == -1) {
+                JOptionPane.showMessageDialog(null, "El paciente " + noPaciente + " no está registrado");
             } else {
                 listo = true;
             }
         } while (!listo);
 
-        fecha = fechaConsulta();
-        if (fecha == null) {
+        fechaConsulta = fechaConsulta();
+        if (fechaConsulta == null) {
             return;
         }
         diagnostico = pedirTexto("Diagnóstico:", "Diagnóstico");
@@ -343,225 +360,263 @@ public class ConsultorioMedico {
             return;
         }
 
-        consulta = new Consulta(numeroConsulta, id, numeroPaciente, fecha, diagnostico);
+        consulta = new Consulta(noConsulta, idEmpleado, noPaciente, fechaConsulta, diagnostico);
         listaConsultas.add(consulta);
         guardarConsultas();
         JOptionPane.showMessageDialog(null, "Consulta registrada exitosamente");
     }
 
-    // =====================================================
-    //                      LISTADOS
-    // =====================================================
+    // Listados
     public void listarFamiliares() {
-        int i;
-        boolean hay = false;
-        String texto = "MÉDICOS FAMILIARES\n\n";
-        Medico m;
-        General g;
+        int indice;
+        boolean hayRegistros = false;
+        String texto;
+        Medico medico;
+        General familiar;
 
-        for (i = 0; i < listaMedicos.size(); i++) {
-            m = listaMedicos.get(i);
-            if (m instanceof General) {
-                g = (General) m;
-                texto = texto + g.getIdEmpleado() + " | " + g.getNombre() + " | Turno: " + g.getTurno()
-                        + " | Consultorio: " + g.getConsultorio()
-                        + " | Contratación: " + g.getFechaContratacion() + "\n";
-                hay = true;
+        texto = "MÉDICOS FAMILIARES\n"
+                + rellenar("Id Empleado", 13) + rellenar("Nombre", 35) + rellenar("Turno", 12)
+                + rellenar("Consultorio", 13) + "Fecha de Contratación\n"
+                + linea(98) + "\n";
+
+        for (indice = 0; indice < listaMedicos.size(); indice++) {
+            medico = listaMedicos.get(indice);
+            if (medico instanceof General) {
+                familiar = (General) medico;
+                texto = texto + rellenar(familiar.getIdEmpleado(), 13)
+                        + rellenar(familiar.getNombre(), 35)
+                        + rellenar(familiar.getTurno(), 12)
+                        + rellenar("" + familiar.getConsultorio(), 13)
+                        + familiar.getFechaContratacion() + "\n";
+                hayRegistros = true;
             }
         }
-        if (hay) {
-            JOptionPane.showMessageDialog(null, texto, "Médicos familiares", JOptionPane.INFORMATION_MESSAGE);
+        if (hayRegistros) {
+            mostrarTexto(texto, "Médicos familiares", true);
         } else {
             JOptionPane.showMessageDialog(null, "No hay médicos familiares registrados");
         }
     }
 
     public void listarEspecialistas() {
-        int i;
-        boolean hay = false;
-        String texto = "MÉDICOS ESPECIALISTAS\n\n";
-        Medico m;
-        Especialista e;
+        int indice;
+        boolean hayRegistros = false;
+        String texto;
+        Medico medico;
+        Especialista especialista;
 
-        for (i = 0; i < listaMedicos.size(); i++) {
-            m = listaMedicos.get(i);
-            if (m instanceof Especialista) {
-                e = (Especialista) m;
-                texto = texto + e.getIdEmpleado() + " | " + e.getNombre() + " | " + e.getEspecialidad()
-                        + " | Área: " + e.getArea()
-                        + " | Contratación: " + e.getFechaContratacion() + "\n";
-                hay = true;
+        texto = "MÉDICOS ESPECIALISTAS\n"
+                + rellenar("Id Empleado", 13) + rellenar("Nombre", 35) + rellenar("Especialidad", 20)
+                + rellenar("Área", 16) + "Fecha de Contratación\n"
+                + linea(106) + "\n";
+
+        for (indice = 0; indice < listaMedicos.size(); indice++) {
+            medico = listaMedicos.get(indice);
+            if (medico instanceof Especialista) {
+                especialista = (Especialista) medico;
+                texto = texto + rellenar(especialista.getIdEmpleado(), 13)
+                        + rellenar(especialista.getNombre(), 35)
+                        + rellenar(especialista.getEspecialidad(), 20)
+                        + rellenar(especialista.getArea(), 16)
+                        + especialista.getFechaContratacion() + "\n";
+                hayRegistros = true;
             }
         }
-        if (hay) {
-            JOptionPane.showMessageDialog(null, texto, "Médicos especialistas", JOptionPane.INFORMATION_MESSAGE);
+        if (hayRegistros) {
+            mostrarTexto(texto, "Médicos especialistas", true);
         } else {
             JOptionPane.showMessageDialog(null, "No hay médicos especialistas registrados");
         }
     }
 
     public void listarPacientes() {
-        int i;
-        String texto = "LISTADO DE PACIENTES\n\n";
-        Paciente p;
+        int indice;
+        String texto;
+        Paciente paciente;
 
         if (listaPacientes.isEmpty()) {
             JOptionPane.showMessageDialog(null, "No hay pacientes registrados");
             return;
         }
-        for (i = 0; i < listaPacientes.size(); i++) {
-            p = listaPacientes.get(i);
-            texto = texto + p.getNoPaciente() + " | " + p.getNombre() + " | Nacimiento: "
-                    + p.getFechaNacimiento() + " | " + p.getCorreo() + "\n";
+
+        texto = "LISTADO DE PACIENTES\n"
+                + rellenar("No.Paciente", 13) + rellenar("Nombre", 35)
+                + rellenar("Fecha de Nacimiento", 21) + "Correo\n"
+                + linea(100) + "\n";
+
+        for (indice = 0; indice < listaPacientes.size(); indice++) {
+            paciente = listaPacientes.get(indice);
+            texto = texto + rellenar("" + paciente.getNoPaciente(), 13)
+                    + rellenar(paciente.getNombre(), 35)
+                    + rellenar(paciente.getFechaNacimiento(), 21)
+                    + paciente.getCorreo() + "\n";
         }
-        JOptionPane.showMessageDialog(null, texto, "Pacientes", JOptionPane.INFORMATION_MESSAGE);
+        mostrarTexto(texto, "Pacientes", true);
     }
 
     public void listarConsultas() {
-        int i;
-        String texto = "LISTADO DE CONSULTAS\n\n";
-        Consulta c;
+        int indice;
+        String texto;
+        Consulta consulta;
 
         if (listaConsultas.isEmpty()) {
             JOptionPane.showMessageDialog(null, "No hay consultas registradas");
             return;
         }
-        for (i = 0; i < listaConsultas.size(); i++) {
-            c = listaConsultas.get(i);
-            texto = texto + c.getNoConsulta() + " | Médico: " + c.getIdEmpleado()
-                    + " | Paciente: " + c.getNoPaciente()
-                    + " | Fecha: " + c.getFechaConsulta() + "\n";
+
+        texto = "LISTADO DE CONSULTAS\n"
+                + rellenar("No.Consulta", 14) + rellenar("Id Empleado", 14)
+                + rellenar("No.Paciente", 14) + "Fecha de Consulta\n"
+                + linea(70) + "\n";
+
+        for (indice = 0; indice < listaConsultas.size(); indice++) {
+            consulta = listaConsultas.get(indice);
+            texto = texto + rellenar("" + consulta.getNoConsulta(), 14)
+                    + rellenar(consulta.getIdEmpleado(), 14)
+                    + rellenar("" + consulta.getNoPaciente(), 14)
+                    + consulta.getFechaConsulta() + "\n";
         }
-        JOptionPane.showMessageDialog(null, texto, "Consultas", JOptionPane.INFORMATION_MESSAGE);
+        mostrarTexto(texto, "Consultas", true);
     }
 
-    // =====================================================
-    //                      DETALLES
-    // =====================================================
+    // Detalles
     public void detalleMedico(boolean familiar) {
-        String id;
-        int pos;
-        Medico m;
+        String idEmpleado;
+        int posicion;
+        Medico medico;
+        String encabezado;
 
-        id = pedirId("Ingrese el Id Empleado del médico:", "Detalle de médico");
-        if (id == null) {
+        idEmpleado = pedirId("Ingrese el Id Empleado del médico a consultar:", "Detalle de médico");
+        if (idEmpleado == null) {
             return;
         }
-        pos = buscarMedico(id);
-        if (pos == -1) {
-            JOptionPane.showMessageDialog(null, "El médico con ID " + id + " no existe");
+        posicion = buscarMedico(idEmpleado);
+        if (posicion == -1) {
+            JOptionPane.showMessageDialog(null, "El médico con Id Empleado " + idEmpleado + " no existe");
             return;
         }
-        m = listaMedicos.get(pos);
-        if (familiar && !(m instanceof General)) {
-            JOptionPane.showMessageDialog(null, "El médico con ID " + id + " no es un médico familiar");
+        medico = listaMedicos.get(posicion);
+        if (familiar && !(medico instanceof General)) {
+            JOptionPane.showMessageDialog(null, "El médico " + idEmpleado + " no es un médico familiar");
             return;
         }
-        if (!familiar && !(m instanceof Especialista)) {
-            JOptionPane.showMessageDialog(null, "El médico con ID " + id + " no es un médico especialista");
+        if (!familiar && !(medico instanceof Especialista)) {
+            JOptionPane.showMessageDialog(null, "El médico " + idEmpleado + " no es un médico especialista");
             return;
         }
-        // getDatos() se comporta distinto segun el tipo de medico (polimorfismo)
-        JOptionPane.showMessageDialog(null, m.getDatos(), "Detalle de médico", JOptionPane.INFORMATION_MESSAGE);
+
+        if (familiar) {
+            encabezado = "DETALLE DE MÉDICO FAMILIAR";
+        } else {
+            encabezado = "DETALLE DE MÉDICO ESPECIALISTA";
+        }
+        mostrarTexto(encabezado + "\n" + medico.getDatos(), "Detalle de médico", false);
     }
 
     public void detallePaciente() {
-        int numero;
-        int pos;
-        Paciente p;
+        int noPaciente;
+        int posicion;
+        Paciente paciente;
 
-        numero = pedirNumero("Ingrese el No. de paciente:", "Detalle de paciente", 1, 999999999);
-        if (numero == -1) {
+        noPaciente = pedirNumero("Ingrese el No. de paciente a consultar:", "Detalle de paciente", 1, 999999999);
+        if (noPaciente == -1) {
             return;
         }
-        pos = buscarPaciente(numero);
-        if (pos == -1) {
-            JOptionPane.showMessageDialog(null, "El paciente " + numero + " no existe");
+        posicion = buscarPaciente(noPaciente);
+        if (posicion == -1) {
+            JOptionPane.showMessageDialog(null, "El paciente " + noPaciente + " no existe");
             return;
         }
-        p = listaPacientes.get(pos);
-        JOptionPane.showMessageDialog(null, p.getDatos(), "Detalle de paciente", JOptionPane.INFORMATION_MESSAGE);
+        paciente = listaPacientes.get(posicion);
+        mostrarTexto("DETALLE DE PACIENTE\n" + paciente.getDatos(), "Detalle de paciente", false);
     }
 
     public void detalleConsulta() {
-        int numero;
-        int pos;
-        int posMedico;
-        int posPaciente;
+        int noConsulta;
+        int posicionConsulta;
+        int posicionMedico;
+        int posicionPaciente;
         String texto;
-        Consulta c;
+        Consulta consulta;
+        Medico medico;
 
-        numero = pedirNumero("Ingrese el No. de consulta:", "Detalle de consulta", 1, 999999999);
-        if (numero == -1) {
+        noConsulta = pedirNumero("Ingrese el No. de consulta que desea consultar:", "Detalle de consulta", 1, 999999999);
+        if (noConsulta == -1) {
             return;
         }
-        pos = buscarConsulta(numero);
-        if (pos == -1) {
-            JOptionPane.showMessageDialog(null, "La consulta " + numero + " no existe");
+        posicionConsulta = buscarConsulta(noConsulta);
+        if (posicionConsulta == -1) {
+            JOptionPane.showMessageDialog(null, "La consulta " + noConsulta + " no existe");
             return;
         }
-        c = listaConsultas.get(pos);
-        texto = c.getDatos();
+        consulta = listaConsultas.get(posicionConsulta);
 
-        posMedico = buscarMedico(c.getIdEmpleado());
-        if (posMedico != -1) {
-            texto = texto + "\n\n" + listaMedicos.get(posMedico).getDatos();
+        texto = "DETALLE DE UNA CONSULTA\nNo. Consulta: " + consulta.getNoConsulta();
+
+        posicionMedico = buscarMedico(consulta.getIdEmpleado());
+        if (posicionMedico != -1) {
+            medico = listaMedicos.get(posicionMedico);
+            if (medico instanceof General) {
+                texto = texto + "\n\nMÉDICO FAMILIAR\n" + medico.getDatos();
+            } else {
+                texto = texto + "\n\nMÉDICO ESPECIALISTA\n" + medico.getDatos();
+            }
         } else {
-            texto = texto + "\n\nMÉDICO: información no disponible";
+            texto = texto + "\n\nMÉDICO\nInformación no disponible";
         }
 
-        posPaciente = buscarPaciente(c.getNoPaciente());
-        if (posPaciente != -1) {
-            texto = texto + "\n\n" + listaPacientes.get(posPaciente).getDatos();
+        posicionPaciente = buscarPaciente(consulta.getNoPaciente());
+        if (posicionPaciente != -1) {
+            texto = texto + "\n\nPACIENTE\n" + listaPacientes.get(posicionPaciente).getDatos();
         } else {
-            texto = texto + "\n\nPACIENTE: información no disponible";
+            texto = texto + "\n\nPACIENTE\nInformación no disponible";
         }
 
-        JOptionPane.showMessageDialog(null, texto, "Detalle de consulta", JOptionPane.INFORMATION_MESSAGE);
+        texto = texto + "\n\nFecha de consulta: " + consulta.getFechaConsulta()
+                + "\nDiagnóstico: " + consulta.getDiagnostico();
+
+        mostrarTexto(texto, "Detalle de consulta", false);
     }
 
-    // =====================================================
-    //                     ELIMINAR
-    // =====================================================
+    // Eliminar
     public void eliminarMedico(boolean familiar) {
-        String id;
-        int pos;
-        int i;
+        String idEmpleado;
+        int posicion;
+        int indice;
         int eliminadas = 0;
         int confirmacion;
-        Medico m;
+        Medico medico;
 
-        id = pedirId("Id Empleado del médico a eliminar:", "Eliminar médico");
-        if (id == null) {
+        idEmpleado = pedirId("Id Empleado del médico a eliminar:", "Eliminar médico");
+        if (idEmpleado == null) {
             return;
         }
-        pos = buscarMedico(id);
-        if (pos == -1) {
-            JOptionPane.showMessageDialog(null, "El médico con ID " + id + " no existe");
+        posicion = buscarMedico(idEmpleado);
+        if (posicion == -1) {
+            JOptionPane.showMessageDialog(null, "El médico con Id Empleado " + idEmpleado + " no existe");
             return;
         }
-        m = listaMedicos.get(pos);
-        if (familiar && !(m instanceof General)) {
-            JOptionPane.showMessageDialog(null, "El médico con ID " + id + " no es un médico familiar");
+        medico = listaMedicos.get(posicion);
+        if (familiar && !(medico instanceof General)) {
+            JOptionPane.showMessageDialog(null, "El médico " + idEmpleado + " no es un médico familiar");
             return;
         }
-        if (!familiar && !(m instanceof Especialista)) {
-            JOptionPane.showMessageDialog(null, "El médico con ID " + id + " no es un médico especialista");
+        if (!familiar && !(medico instanceof Especialista)) {
+            JOptionPane.showMessageDialog(null, "El médico " + idEmpleado + " no es un médico especialista");
             return;
         }
 
         confirmacion = JOptionPane.showConfirmDialog(null,
-                m.getDatos() + "\n\n¿Está seguro de que desea eliminar a este médico?",
+                medico.getDatos() + "\n\n¿Está seguro de que desea eliminar a este médico?",
                 "Confirmar eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
         if (confirmacion == JOptionPane.YES_OPTION) {
-            listaMedicos.remove(pos);
+            listaMedicos.remove(posicion);
             guardarMedicos();
 
-            // Tambien se borran las consultas de ese medico
-            for (i = listaConsultas.size() - 1; i >= 0; i--) {
-                if (listaConsultas.get(i).getIdEmpleado().equalsIgnoreCase(id)) {
-                    listaConsultas.remove(i);
+            for (indice = listaConsultas.size() - 1; indice >= 0; indice--) {
+                if (listaConsultas.get(indice).getIdEmpleado().equalsIgnoreCase(idEmpleado)) {
+                    listaConsultas.remove(indice);
                     eliminadas++;
                 }
             }
@@ -576,35 +631,35 @@ public class ConsultorioMedico {
     }
 
     public void eliminarPaciente() {
-        int numero;
-        int pos;
-        int i;
+        int noPaciente;
+        int posicion;
+        int indice;
         int eliminadas = 0;
         int confirmacion;
-        Paciente p;
+        Paciente paciente;
 
-        numero = pedirNumero("No. de paciente a eliminar:", "Eliminar paciente", 1, 999999999);
-        if (numero == -1) {
+        noPaciente = pedirNumero("No. de paciente a eliminar:", "Eliminar paciente", 1, 999999999);
+        if (noPaciente == -1) {
             return;
         }
-        pos = buscarPaciente(numero);
-        if (pos == -1) {
-            JOptionPane.showMessageDialog(null, "El paciente " + numero + " no existe");
+        posicion = buscarPaciente(noPaciente);
+        if (posicion == -1) {
+            JOptionPane.showMessageDialog(null, "El paciente " + noPaciente + " no existe");
             return;
         }
-        p = listaPacientes.get(pos);
+        paciente = listaPacientes.get(posicion);
 
         confirmacion = JOptionPane.showConfirmDialog(null,
-                p.getDatos() + "\n\n¿Está seguro de que desea eliminar a este paciente?",
+                paciente.getDatos() + "\n\n¿Está seguro de que desea eliminar a este paciente?",
                 "Confirmar eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
         if (confirmacion == JOptionPane.YES_OPTION) {
-            listaPacientes.remove(pos);
+            listaPacientes.remove(posicion);
             guardarPacientes();
 
-            for (i = listaConsultas.size() - 1; i >= 0; i--) {
-                if (listaConsultas.get(i).getNoPaciente() == numero) {
-                    listaConsultas.remove(i);
+            for (indice = listaConsultas.size() - 1; indice >= 0; indice--) {
+                if (listaConsultas.get(indice).getNoPaciente() == noPaciente) {
+                    listaConsultas.remove(indice);
                     eliminadas++;
                 }
             }
@@ -619,28 +674,28 @@ public class ConsultorioMedico {
     }
 
     public void eliminarConsulta() {
-        int numero;
-        int pos;
+        int noConsulta;
+        int posicion;
         int confirmacion;
-        Consulta c;
+        Consulta consulta;
 
-        numero = pedirNumero("No. de consulta a eliminar:", "Eliminar consulta", 1, 999999999);
-        if (numero == -1) {
+        noConsulta = pedirNumero("No. de consulta a eliminar:", "Eliminar consulta", 1, 999999999);
+        if (noConsulta == -1) {
             return;
         }
-        pos = buscarConsulta(numero);
-        if (pos == -1) {
-            JOptionPane.showMessageDialog(null, "La consulta " + numero + " no existe");
+        posicion = buscarConsulta(noConsulta);
+        if (posicion == -1) {
+            JOptionPane.showMessageDialog(null, "La consulta " + noConsulta + " no existe");
             return;
         }
-        c = listaConsultas.get(pos);
+        consulta = listaConsultas.get(posicion);
 
         confirmacion = JOptionPane.showConfirmDialog(null,
-                c.getDatos() + "\n\n¿Está seguro de que desea eliminar esta consulta?",
+                consulta.getDatos() + "\n\n¿Está seguro de que desea eliminar esta consulta?",
                 "Confirmar eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
         if (confirmacion == JOptionPane.YES_OPTION) {
-            listaConsultas.remove(pos);
+            listaConsultas.remove(posicion);
             guardarConsultas();
             JOptionPane.showMessageDialog(null, "Consulta eliminada exitosamente");
         } else {
@@ -648,533 +703,546 @@ public class ConsultorioMedico {
         }
     }
 
-    // =====================================================
-    //                      BUSQUEDAS
-    // =====================================================
-    public int buscarMedico(String id) {
-        int i;
-        int pos = -1;
-        for (i = 0; i < listaMedicos.size(); i++) {
-            if (listaMedicos.get(i).getIdEmpleado().equalsIgnoreCase(id)) {
-                pos = i;
+    // Búsquedas
+    public int buscarMedico(String idEmpleado) {
+        int indice = 0;
+        int posicion = -1;
+        while (indice < listaMedicos.size() && posicion == -1) {
+            if (listaMedicos.get(indice).getIdEmpleado().equalsIgnoreCase(idEmpleado)) {
+                posicion = indice;
             }
+            indice++;
         }
-        return pos;
+        return posicion;
     }
 
-    public int buscarPaciente(int numero) {
-        int i;
-        int pos = -1;
-        for (i = 0; i < listaPacientes.size(); i++) {
-            if (listaPacientes.get(i).getNoPaciente() == numero) {
-                pos = i;
+    public int buscarPaciente(int noPaciente) {
+        int indice = 0;
+        int posicion = -1;
+        while (indice < listaPacientes.size() && posicion == -1) {
+            if (listaPacientes.get(indice).getNoPaciente() == noPaciente) {
+                posicion = indice;
             }
+            indice++;
         }
-        return pos;
+        return posicion;
     }
 
-    public int buscarConsulta(int numero) {
-        int i;
-        int pos = -1;
-        for (i = 0; i < listaConsultas.size(); i++) {
-            if (listaConsultas.get(i).getNoConsulta() == numero) {
-                pos = i;
+    public int buscarConsulta(int noConsulta) {
+        int indice = 0;
+        int posicion = -1;
+        while (indice < listaConsultas.size() && posicion == -1) {
+            if (listaConsultas.get(indice).getNoConsulta() == noConsulta) {
+                posicion = indice;
             }
+            indice++;
         }
-        return pos;
+        return posicion;
     }
 
-    // =====================================================
-    //            REVISAR TEXTOS (sin matches ni trim)
-    // =====================================================
-    public boolean soloNumeros(String t) {
-        int i;
-        boolean ok = true;
-        if (t.isEmpty()) {
-            ok = false;
-        }
-        for (i = 0; i < t.length(); i++) {
-            if (!Character.isDigit(t.charAt(i))) {
-                ok = false;
+    // Validaciones
+    public boolean soloNumeros(String texto) {
+        int indice;
+        boolean correcto = !texto.isEmpty();
+        for (indice = 0; indice < texto.length(); indice++) {
+            if (texto.charAt(indice) < '0' || texto.charAt(indice) > '9') {
+                correcto = false;
             }
         }
-        return ok;
+        return correcto;
     }
 
-    public boolean soloLetras(String t) {
-        int i;
-        char c;
-        boolean ok = true;
-        for (i = 0; i < t.length(); i++) {
-            c = t.charAt(i);
-            if (!Character.isLetter(c) && c != ' ') {
-                ok = false;
+    public boolean soloLetras(String texto) {
+        int indice;
+        char caracter;
+        boolean correcto = true;
+        for (indice = 0; indice < texto.length(); indice++) {
+            caracter = texto.charAt(indice);
+            if (!Character.isLetter(caracter) && caracter != ' ') {
+                correcto = false;
             }
         }
-        return ok;
+        return correcto;
     }
 
-    public boolean soloLetrasYNumeros(String t) {
-        int i;
-        boolean ok = true;
-        for (i = 0; i < t.length(); i++) {
-            if (!Character.isLetterOrDigit(t.charAt(i))) {
-                ok = false;
+    public boolean soloLetrasYNumeros(String texto) {
+        int indice;
+        boolean correcto = true;
+        for (indice = 0; indice < texto.length(); indice++) {
+            if (!Character.isLetterOrDigit(texto.charAt(indice))) {
+                correcto = false;
             }
         }
-        return ok;
+        return correcto;
     }
 
-    // =====================================================
-    //                  PEDIR DATOS
-    //   (todos regresan null o -1 si el usuario cancela)
-    // =====================================================
-    public String pedirTexto(String mensaje, String titulo) {
-        String t;
+    public boolean textoValido(String texto) {
+        int indice;
+        char caracter;
+        boolean correcto = true;
+        for (indice = 0; indice < texto.length(); indice++) {
+            caracter = texto.charAt(indice);
+            if (!Character.isLetterOrDigit(caracter) && " .,#-/:()".indexOf(caracter) == -1) {
+                correcto = false;
+            }
+        }
+        return correcto;
+    }
+
+    public boolean correoValido(String correo) {
+        int indice;
+        char caracter;
+        int posArroba = correo.indexOf('@');
+        int posPunto = correo.lastIndexOf('.');
+        boolean correcto = true;
+
+        for (indice = 0; indice < correo.length(); indice++) {
+            caracter = correo.charAt(indice);
+            if (!((caracter >= 'a' && caracter <= 'z') || (caracter >= 'A' && caracter <= 'Z')
+                    || (caracter >= '0' && caracter <= '9')
+                    || caracter == '@' || caracter == '.' || caracter == '_' || caracter == '-')) {
+                correcto = false;
+            }
+        }
+        if (posArroba < 1 || posArroba != correo.lastIndexOf('@')
+                || posPunto < posArroba + 2 || posPunto == correo.length() - 1) {
+            correcto = false;
+        }
+        return correcto;
+    }
+
+    // Captura de datos
+    public String pedirNoVacio(String mensaje, String titulo) {
+        String texto;
         boolean listo = false;
 
         do {
-            t = JOptionPane.showInputDialog(null, mensaje, titulo, JOptionPane.QUESTION_MESSAGE);
-            if (t == null) {
+            texto = JOptionPane.showInputDialog(null, mensaje, titulo, JOptionPane.QUESTION_MESSAGE);
+            if (texto == null) {
                 listo = true;
-            } else if (t.isBlank()) {
+            } else if (texto.trim().isEmpty()) {
                 JOptionPane.showMessageDialog(null, "El campo " + titulo + " no puede quedar en blanco");
-            } else if (t.contains(";")) {
-                JOptionPane.showMessageDialog(null, "No se permite el caracter ;");
+            } else {
+                texto = texto.trim();
+                listo = true;
+            }
+        } while (!listo);
+        return texto;
+    }
+
+    public String pedirTexto(String mensaje, String titulo) {
+        String texto;
+        boolean listo = false;
+
+        do {
+            texto = pedirNoVacio(mensaje, titulo);
+            if (texto == null) {
+                listo = true;
+            } else if (!textoValido(texto)) {
+                JOptionPane.showMessageDialog(null, "El campo " + titulo
+                        + " no permite caracteres especiales (& % $ ¡ ¿ | ° ; entre otros)");
             } else {
                 listo = true;
             }
         } while (!listo);
-        return t;
+        return texto;
     }
 
     public String pedirLetras(String mensaje, String titulo) {
-        String t;
+        String texto;
         boolean listo = false;
 
         do {
-            t = pedirTexto(mensaje, titulo);
-            if (t == null) {
+            texto = pedirNoVacio(mensaje, titulo);
+            if (texto == null) {
                 listo = true;
-            } else if (!soloLetras(t)) {
+            } else if (!soloLetras(texto)) {
                 JOptionPane.showMessageDialog(null, "El campo " + titulo + " solo puede contener letras y espacios");
             } else {
                 listo = true;
             }
         } while (!listo);
-        return t;
+        return texto;
     }
 
     public String pedirId(String mensaje, String titulo) {
-        String t;
+        String texto;
         boolean listo = false;
 
         do {
-            t = pedirTexto(mensaje, titulo);
-            if (t == null) {
+            texto = pedirNoVacio(mensaje, titulo);
+            if (texto == null) {
                 listo = true;
-            } else if (!soloLetrasYNumeros(t)) {
-                JOptionPane.showMessageDialog(null, "El ID solo puede tener letras y números, sin espacios");
+            } else if (!soloLetrasYNumeros(texto)) {
+                JOptionPane.showMessageDialog(null, "El Id solo puede tener letras y números, sin espacios");
             } else {
                 listo = true;
             }
         } while (!listo);
-        return t;
+        return texto;
     }
 
     public String pedirIdMedicoNuevo(String titulo) {
-        String id;
+        String idEmpleado;
         boolean listo = false;
 
         do {
-            id = pedirId("ID de empleado:", titulo);
-            if (id == null) {
+            idEmpleado = pedirId("Id Empleado:", titulo);
+            if (idEmpleado == null) {
                 listo = true;
-            } else if (buscarMedico(id) != -1) {
-                JOptionPane.showMessageDialog(null, "El ID ya está registrado");
+            } else if (buscarMedico(idEmpleado) != -1) {
+                JOptionPane.showMessageDialog(null, "El Id Empleado ya está registrado");
             } else {
                 listo = true;
             }
         } while (!listo);
-        return id;
+        return idEmpleado;
     }
 
     public String pedirTelefono() {
-        String t;
+        String telefono;
         boolean listo = false;
 
         do {
-            t = pedirTexto("Teléfono (10 dígitos):", "Teléfono");
-            if (t == null) {
+            telefono = pedirNoVacio("Teléfono (10 dígitos):", "Teléfono");
+            if (telefono == null) {
                 listo = true;
-            } else if (t.length() != 10 || !soloNumeros(t)) {
-                JOptionPane.showMessageDialog(null, "El teléfono debe tener exactamente 10 dígitos");
+            } else if (telefono.length() != 10 || !soloNumeros(telefono)) {
+                JOptionPane.showMessageDialog(null, "El teléfono debe tener exactamente 10 dígitos numéricos");
             } else {
                 listo = true;
             }
         } while (!listo);
-        return t;
+        return telefono;
     }
 
     public String pedirCorreo() {
-        String t;
+        String correo;
         boolean listo = false;
 
         do {
-            t = pedirTexto("Correo electrónico:", "Correo");
-            if (t == null) {
+            correo = pedirNoVacio("Correo electrónico:", "Correo");
+            if (correo == null) {
                 listo = true;
-            } else if (t.contains(" ")
-                    || t.indexOf('@') < 1
-                    || t.indexOf('@') != t.lastIndexOf('@')
-                    || t.lastIndexOf('.') < t.indexOf('@') + 2
-                    || t.lastIndexOf('.') == t.length() - 1) {
-                JOptionPane.showMessageDialog(null, "El formato del correo no es válido (ejemplo: nombre@correo.com)");
+            } else if (!correoValido(correo)) {
+                JOptionPane.showMessageDialog(null,
+                        "El formato del correo no es válido (ejemplo: nombre@correo.com)");
             } else {
                 listo = true;
             }
         } while (!listo);
-        return t;
+        return correo;
     }
 
     public String pedirTurno() {
-        String t;
-        String resultado = null;
+        String texto;
+        String turno = null;
         boolean listo = false;
 
         do {
-            t = JOptionPane.showInputDialog(null, "Turno (Matutino/Vespertino/Nocturno):", "Turno",
-                    JOptionPane.QUESTION_MESSAGE);
-            if (t == null) {
+            texto = pedirNoVacio("Turno (Matutino/Vespertino/Nocturno):", "Turno");
+            if (texto == null) {
                 listo = true;
-            } else if (t.equalsIgnoreCase("Matutino")) {
-                resultado = "Matutino";
+            } else if (texto.equalsIgnoreCase("Matutino")) {
+                turno = "Matutino";
                 listo = true;
-            } else if (t.equalsIgnoreCase("Vespertino")) {
-                resultado = "Vespertino";
+            } else if (texto.equalsIgnoreCase("Vespertino")) {
+                turno = "Vespertino";
                 listo = true;
-            } else if (t.equalsIgnoreCase("Nocturno")) {
-                resultado = "Nocturno";
+            } else if (texto.equalsIgnoreCase("Nocturno")) {
+                turno = "Nocturno";
                 listo = true;
             } else {
                 JOptionPane.showMessageDialog(null, "El turno debe ser Matutino, Vespertino o Nocturno");
             }
         } while (!listo);
-        return resultado;
+        return turno;
     }
 
-    public int pedirNumero(String mensaje, String titulo, int min, int max) {
-        String t;
+    public int pedirNumero(String mensaje, String titulo, int minimo, int maximo) {
+        String texto;
         int valor = -1;
         boolean listo = false;
 
         do {
-            t = JOptionPane.showInputDialog(null, mensaje, titulo, JOptionPane.QUESTION_MESSAGE);
-            if (t == null) {
+            texto = pedirNoVacio(mensaje, titulo);
+            if (texto == null) {
                 valor = -1;
                 listo = true;
-            } else if (t.isBlank()) {
-                JOptionPane.showMessageDialog(null, "El campo no puede quedar en blanco");
-            } else if (!soloNumeros(t) || t.length() > 9) {
-                JOptionPane.showMessageDialog(null, "Escriba solo números enteros (máximo 9 dígitos)");
             } else {
-                valor = Integer.parseInt(t);
-                if (valor < min || valor > max) {
-                    JOptionPane.showMessageDialog(null, "El valor debe estar entre " + min + " y " + max);
-                } else {
-                    listo = true;
+                try {
+                    valor = Integer.parseInt(texto);
+                    if (valor < minimo || valor > maximo) {
+                        JOptionPane.showMessageDialog(null,
+                                "El valor debe estar entre " + minimo + " y " + maximo);
+                    } else {
+                        listo = true;
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Escriba solo números enteros, sin letras ni símbolos");
                 }
             }
         } while (!listo);
         return valor;
     }
 
-    // =====================================================
-    //                       FECHAS
-    // =====================================================
+    // Fechas
     public int numeroHoy() {
         LocalDate hoy = LocalDate.now();
         return hoy.getYear() * 10000 + hoy.getMonthValue() * 100 + hoy.getDayOfMonth();
     }
 
+    public int numeroFecha(Fecha fecha) {
+        return fecha.getAnio() * 10000 + fecha.getMes() * 100 + fecha.getDia();
+    }
+
+    public int calcularEdad(Fecha nacimiento) {
+        LocalDate hoy = LocalDate.now();
+        int edad = hoy.getYear() - nacimiento.getAnio();
+        if (hoy.getMonthValue() < nacimiento.getMes()
+                || (hoy.getMonthValue() == nacimiento.getMes() && hoy.getDayOfMonth() < nacimiento.getDia())) {
+            edad--;
+        }
+        return edad;
+    }
+
     public Fecha pedirFecha(String titulo) {
-        int d;
-        int m;
-        int a;
+        int dia;
+        int mes;
+        int anio;
         boolean listo = false;
-        Fecha f = null;
+        Fecha fecha = null;
 
         do {
-            d = pedirNumero(titulo + "\nDía (1-31):", "Día", 1, 31);
-            if (d == -1) {
+            dia = pedirNumero(titulo + "\nDía (1-31):", "Día", 1, 31);
+            if (dia == -1) {
                 listo = true;
             } else {
-                m = pedirNumero(titulo + "\nMes (1-12):", "Mes", 1, 12);
-                if (m == -1) {
+                mes = pedirNumero(titulo + "\nMes (1-12):", "Mes", 1, 12);
+                if (mes == -1) {
                     listo = true;
                 } else {
-                    a = pedirNumero(titulo + "\nAño:", "Año", 1900, 2030);
-                    if (a == -1) {
+                    anio = pedirNumero(titulo + "\nAño:", "Año", 1900, 2100);
+                    if (anio == -1) {
                         listo = true;
                     } else {
-                        f = new Fecha(d, m, a);
-                        if (f.fechaCorrecta()) {
+                        fecha = new Fecha(dia, mes, anio);
+                        if (fecha.fechaCorrecta()) {
                             listo = true;
                         } else {
-                            JOptionPane.showMessageDialog(null, "La fecha " + f + " no existe en el calendario");
-                            f = null;
+                            JOptionPane.showMessageDialog(null,
+                                    "La fecha " + fecha.getFecha() + " no existe en el calendario");
+                            fecha = null;
                         }
                     }
                 }
             }
         } while (!listo);
-        return f;
+        return fecha;
     }
 
     public Fecha fechaNacPaciente() {
-        int hoy = numeroHoy();
-        int anioActual = LocalDate.now().getYear();
         boolean listo = false;
-        Fecha f;
+        Fecha fecha;
 
         do {
-            f = pedirFecha("Fecha de nacimiento del paciente");
-            if (f == null) {
+            fecha = pedirFecha("Fecha de nacimiento del paciente");
+            if (fecha == null) {
                 listo = true;
-            } else if (numeroFecha(f) > hoy) {
+            } else if (numeroFecha(fecha) > numeroHoy()) {
                 JOptionPane.showMessageDialog(null, "La fecha de nacimiento no puede ser posterior a hoy");
-            } else if (f.getAnio() < anioActual - 115) {
+            } else if (calcularEdad(fecha) > 115) {
                 JOptionPane.showMessageDialog(null, "La edad del paciente no puede ser mayor a 115 años");
             } else {
                 listo = true;
             }
         } while (!listo);
-        return f;
+        return fecha;
     }
 
     public Fecha fechaNacMedico() {
-        int hoy = numeroHoy();
-        int anioActual = LocalDate.now().getYear();
         boolean listo = false;
-        Fecha f;
+        int edad;
+        Fecha fecha;
 
         do {
-            f = pedirFecha("Fecha de nacimiento del médico");
-            if (f == null) {
+            fecha = pedirFecha("Fecha de nacimiento del médico");
+            if (fecha == null) {
                 listo = true;
-            } else if (numeroFecha(f) > hoy) {
+            } else if (numeroFecha(fecha) > numeroHoy()) {
                 JOptionPane.showMessageDialog(null, "La fecha de nacimiento no puede ser posterior a hoy");
-            } else if (anioActual - f.getAnio() < 24 || anioActual - f.getAnio() > 90) {
-                JOptionPane.showMessageDialog(null, "La edad del médico debe estar entre 24 y 90 años");
             } else {
-                listo = true;
+                edad = calcularEdad(fecha);
+                if (edad < 20 || edad >= 28) {
+                    JOptionPane.showMessageDialog(null,
+                            "La edad del médico debe ser menor a 28 años (mínimo 20 años)");
+                } else {
+                    listo = true;
+                }
             }
         } while (!listo);
-        return f;
+        return fecha;
     }
 
     public Fecha fechaContratacion(Fecha nacimiento) {
-        int hoy = numeroHoy();
         boolean listo = false;
-        Fecha f;
+        Fecha fecha;
 
         do {
-            f = pedirFecha("Fecha de contratación del médico");
-            if (f == null) {
+            fecha = pedirFecha("Fecha de contratación del médico");
+            if (fecha == null) {
                 listo = true;
-            } else if (numeroFecha(f) > hoy) {
+            } else if (numeroFecha(fecha) > numeroHoy()) {
                 JOptionPane.showMessageDialog(null, "La fecha de contratación no puede ser posterior a hoy");
-            } else if (numeroFecha(f) < numeroFecha(nacimiento) + 200000) {
+            } else if (numeroFecha(fecha) < numeroFecha(nacimiento) + 200000) {
                 JOptionPane.showMessageDialog(null, "El médico debe tener mínimo 20 años al ser contratado");
             } else {
                 listo = true;
             }
         } while (!listo);
-        return f;
+        return fecha;
     }
 
     public Fecha fechaConsulta() {
-        int hoy = numeroHoy();
         boolean listo = false;
-        Fecha f;
+        Fecha fecha;
 
         do {
-            f = pedirFecha("Fecha de la consulta");
-            if (f == null) {
+            fecha = pedirFecha("Fecha de la consulta");
+            if (fecha == null) {
                 listo = true;
-            } else if (numeroFecha(f) > hoy) {
+            } else if (numeroFecha(fecha) > numeroHoy()) {
                 JOptionPane.showMessageDialog(null, "La fecha de consulta no puede ser posterior a hoy");
-            } else if (numeroFecha(f) < hoy - 50000) {
+            } else if (numeroFecha(fecha) < numeroHoy() - 50000) {
                 JOptionPane.showMessageDialog(null, "La fecha de consulta no puede ser de hace más de 5 años");
             } else {
                 listo = true;
             }
         } while (!listo);
-        return f;
+        return fecha;
     }
 
-    // =====================================================
-    //             ARCHIVOS DE TEXTO (.txt)
-    // =====================================================
-    // Convierte una fecha a un numero AAAAMMDD para poder compararla
-    public int numeroFecha(Fecha f) {
-        return f.getAnio() * 10000 + f.getMes() * 100 + f.getDia();
+    // Presentación
+    public String rellenar(String texto, int ancho) {
+        String resultado = texto;
+        while (resultado.length() < ancho) {
+            resultado = resultado + " ";
+        }
+        return resultado;
     }
 
-    // Arman la linea de texto que se guarda en cada archivo
-    public String lineaMedico(Medico m) {
-        String linea;
-        General g;
-        Especialista e;
+    public String linea(int ancho) {
+        int indice;
+        String resultado = "";
+        for (indice = 0; indice < ancho; indice++) {
+            resultado = resultado + "-";
+        }
+        return resultado;
+    }
 
-        linea = m.getIdEmpleado() + ";" + m.getNombre() + ";" + m.getDireccion() + ";" + m.getTelefono() + ";"
-                + m.getFechaNacimientoObj().getDia() + ";" + m.getFechaNacimientoObj().getMes() + ";"
-                + m.getFechaNacimientoObj().getAnio() + ";"
-                + m.getFechaContratacionObj().getDia() + ";" + m.getFechaContratacionObj().getMes() + ";"
-                + m.getFechaContratacionObj().getAnio();
+    public int contarLineas(String texto) {
+        int indice;
+        int lineas = 1;
+        for (indice = 0; indice < texto.length(); indice++) {
+            if (texto.charAt(indice) == '\n') {
+                lineas++;
+            }
+        }
+        return lineas;
+    }
 
-        if (m instanceof General) {
-            g = (General) m;
-            linea = "G;" + linea + ";" + g.getTurno() + ";" + g.getConsultorio();
+    public void mostrarTexto(String texto, String titulo, boolean tabla) {
+        JTextArea area = new JTextArea(texto);
+        area.setEditable(false);
+        area.setRows(Math.min(contarLineas(texto) + 1, 25));
+        if (tabla) {
+            area.setFont(new Font("Monospaced", Font.PLAIN, 12));
+            area.setColumns(105);
         } else {
-            e = (Especialista) m;
-            linea = "E;" + linea + ";" + e.getEspecialidad() + ";" + e.getArea() + ";" + e.getEnfermera();
+            area.setLineWrap(true);
+            area.setWrapStyleWord(true);
+            area.setColumns(50);
         }
-        return linea;
+        JOptionPane.showMessageDialog(null, new JScrollPane(area), titulo, JOptionPane.INFORMATION_MESSAGE);
     }
 
-    public String lineaPaciente(Paciente p) {
-        return p.getNoPaciente() + ";" + p.getNombre() + ";" + p.getDireccion() + ";" + p.getTelefono() + ";"
-                + p.getFechaNacimientoObj().getDia() + ";" + p.getFechaNacimientoObj().getMes() + ";"
-                + p.getFechaNacimientoObj().getAnio() + ";" + p.getCorreo();
-    }
-
-    public String lineaConsulta(Consulta c) {
-        return c.getNoConsulta() + ";" + c.getIdEmpleado() + ";" + c.getNoPaciente() + ";"
-                + c.getFechaConsultaObj().getDia() + ";" + c.getFechaConsultaObj().getMes() + ";"
-                + c.getFechaConsultaObj().getAnio() + ";" + c.getDiagnostico();
-    }
-
+    // Archivos
     public void guardarMedicos() {
-        int i;
-        ArrayList<String> lineas = new ArrayList<>();
-
-        for (i = 0; i < listaMedicos.size(); i++) {
-            lineas.add(lineaMedico(listaMedicos.get(i)));
-        }
         try {
-            Files.write(Paths.get("Medicos.txt"), lineas);
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Error al guardar Medicos.txt");
+            ObjectOutputStream salida = new ObjectOutputStream(new FileOutputStream(ARCHIVO_MEDICOS));
+            salida.writeObject(listaMedicos);
+            salida.close();
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "No se pudo guardar el archivo " + ARCHIVO_MEDICOS);
         }
     }
 
     public void guardarPacientes() {
-        int i;
-        ArrayList<String> lineas = new ArrayList<>();
-
-        for (i = 0; i < listaPacientes.size(); i++) {
-            lineas.add(lineaPaciente(listaPacientes.get(i)));
-        }
         try {
-            Files.write(Paths.get("Pacientes.txt"), lineas);
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Error al guardar Pacientes.txt");
+            ObjectOutputStream salida = new ObjectOutputStream(new FileOutputStream(ARCHIVO_PACIENTES));
+            salida.writeObject(listaPacientes);
+            salida.close();
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "No se pudo guardar el archivo " + ARCHIVO_PACIENTES);
         }
     }
 
     public void guardarConsultas() {
-        int i;
-        ArrayList<String> lineas = new ArrayList<>();
-
-        for (i = 0; i < listaConsultas.size(); i++) {
-            lineas.add(lineaConsulta(listaConsultas.get(i)));
-        }
         try {
-            Files.write(Paths.get("Consultas.txt"), lineas);
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Error al guardar Consultas.txt");
+            ObjectOutputStream salida = new ObjectOutputStream(new FileOutputStream(ARCHIVO_CONSULTAS));
+            salida.writeObject(listaConsultas);
+            salida.close();
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "No se pudo guardar el archivo " + ARCHIVO_CONSULTAS);
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void cargarMedicos() {
-        int i;
-        String[] d;
-        List<String> lineas;
-        Fecha nac;
-        Fecha con;
-        General g;
-        Especialista e;
-
-        if (Files.exists(Paths.get("Medicos.txt"))) {
-            try {
-                lineas = Files.readAllLines(Paths.get("Medicos.txt"));
-                for (i = 0; i < lineas.size(); i++) {
-                    d = lineas.get(i).split(";");
-                    nac = new Fecha(Integer.parseInt(d[5]), Integer.parseInt(d[6]), Integer.parseInt(d[7]));
-                    con = new Fecha(Integer.parseInt(d[8]), Integer.parseInt(d[9]), Integer.parseInt(d[10]));
-                    if (d[0].equals("G")) {
-                        g = new General(d[1], d[2], d[3], d[4], nac, con, d[11], Integer.parseInt(d[12]));
-                        listaMedicos.add(g);
-                    } else {
-                        e = new Especialista(d[1], d[2], d[3], d[4], nac, con, d[11], d[12], d[13]);
-                        listaMedicos.add(e);
-                    }
-                }
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(null, "Error al leer Medicos.txt");
-            }
+        try {
+            ObjectInputStream entrada = new ObjectInputStream(new FileInputStream(ARCHIVO_MEDICOS));
+            listaMedicos = (ArrayList<Medico>) entrada.readObject();
+            entrada.close();
+        } catch (FileNotFoundException ex) {
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "No se pudo leer el archivo " + ARCHIVO_MEDICOS);
+        } catch (ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(null, "El archivo " + ARCHIVO_MEDICOS + " tiene un formato no válido");
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void cargarPacientes() {
-        int i;
-        String[] d;
-        List<String> lineas;
-        Fecha nac;
-        Paciente p;
-
-        if (Files.exists(Paths.get("Pacientes.txt"))) {
-            try {
-                lineas = Files.readAllLines(Paths.get("Pacientes.txt"));
-                for (i = 0; i < lineas.size(); i++) {
-                    d = lineas.get(i).split(";");
-                    nac = new Fecha(Integer.parseInt(d[4]), Integer.parseInt(d[5]), Integer.parseInt(d[6]));
-                    p = new Paciente(Integer.parseInt(d[0]), d[1], d[2], d[3], nac, d[7]);
-                    listaPacientes.add(p);
-                }
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(null, "Error al leer Pacientes.txt");
-            }
+        try {
+            ObjectInputStream entrada = new ObjectInputStream(new FileInputStream(ARCHIVO_PACIENTES));
+            listaPacientes = (ArrayList<Paciente>) entrada.readObject();
+            entrada.close();
+        } catch (FileNotFoundException ex) {
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "No se pudo leer el archivo " + ARCHIVO_PACIENTES);
+        } catch (ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(null, "El archivo " + ARCHIVO_PACIENTES + " tiene un formato no válido");
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void cargarConsultas() {
-        int i;
-        String[] d;
-        List<String> lineas;
-        Fecha fecha;
-        Consulta c;
-
-        if (Files.exists(Paths.get("Consultas.txt"))) {
-            try {
-                lineas = Files.readAllLines(Paths.get("Consultas.txt"));
-                for (i = 0; i < lineas.size(); i++) {
-                    d = lineas.get(i).split(";");
-                    fecha = new Fecha(Integer.parseInt(d[3]), Integer.parseInt(d[4]), Integer.parseInt(d[5]));
-                    c = new Consulta(Integer.parseInt(d[0]), d[1], Integer.parseInt(d[2]), fecha, d[6]);
-                    listaConsultas.add(c);
-                }
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(null, "Error al leer Consultas.txt");
-            }
+        try {
+            ObjectInputStream entrada = new ObjectInputStream(new FileInputStream(ARCHIVO_CONSULTAS));
+            listaConsultas = (ArrayList<Consulta>) entrada.readObject();
+            entrada.close();
+        } catch (FileNotFoundException ex) {
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "No se pudo leer el archivo " + ARCHIVO_CONSULTAS);
+        } catch (ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(null, "El archivo " + ARCHIVO_CONSULTAS + " tiene un formato no válido");
         }
     }
 
-    // =====================================================
+    // Copyright
     public void mostrarCopyright() {
         JOptionPane.showMessageDialog(null,
-                "Consultorio Médico v1.0\n\n"
+                "Consultorio Médico\n\n"
                 + "Desarrolladores:\n"
                 + "• Aban Miguel Angel\n"
                 + "• Cruz Ortega Alexis\n"

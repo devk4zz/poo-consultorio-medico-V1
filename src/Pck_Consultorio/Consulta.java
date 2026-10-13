@@ -6,7 +6,9 @@
  */
 package Pck_Consultorio;
 
-public class Consulta {
+import java.io.Serializable;
+
+public class Consulta implements Serializable {
 
     private int noConsulta;
     private String idEmpleado;
@@ -15,11 +17,11 @@ public class Consulta {
     private String diagnostico;
 
     public Consulta() {
-        this.noConsulta = 0;
-        this.idEmpleado = "";
-        this.noPaciente = 0;
+        this.noConsulta = 1;
+        this.idEmpleado = "SinId";
+        this.noPaciente = 1;
         this.fechaConsulta = new Fecha();
-        this.diagnostico = "";
+        this.diagnostico = "Sin diagnóstico";
     }
 
     public Consulta(int noConsulta, String idEmpleado,
@@ -44,28 +46,13 @@ public class Consulta {
         this.diagnostico = diagnostico;
     }
 
-    public int getNoConsulta() {
-        return noConsulta;
-    }
-
     public void setNoConsulta(int noConsulta) {
         this.noConsulta = noConsulta;
     }
 
-    public String getIdEmpleado() {
-        return idEmpleado;
-    }
-
-    public void setIdEmpleado(String idEmpleado) {
-        this.idEmpleado = idEmpleado;
-    }
-
+    // Método indicado en el diagrama UML (modifica el Id del médico)
     public void setNombre(String idEmpleado) {
         this.idEmpleado = idEmpleado;
-    }
-
-    public int getNoPaciente() {
-        return noPaciente;
     }
 
     public void setNoPaciente(int noPaciente) {
@@ -73,42 +60,46 @@ public class Consulta {
     }
 
     public boolean setFechaConsulta(int dia, int mes, int anio) {
-        Fecha f = new Fecha(dia, mes, anio);
-        if (f.fechaCorrecta()) {
-            this.fechaConsulta = f;
-            return true;
+        Fecha fecha = new Fecha(dia, mes, anio);
+        boolean correcta = fecha.fechaCorrecta();
+        if (correcta) {
+            this.fechaConsulta = fecha;
         }
-        return false;
+        return correcta;
     }
 
     public void setFecha(Fecha fechaConsulta) {
         this.fechaConsulta = fechaConsulta;
     }
 
-    public void setFechaConsulta(Fecha fechaConsulta) {
-        this.fechaConsulta = fechaConsulta;
+    public void setDiagnostico(String diagnostico) {
+        this.diagnostico = diagnostico;
+    }
+
+    public int getNoConsulta() {
+        return noConsulta;
+    }
+
+    public String getIdEmpleado() {
+        return idEmpleado;
+    }
+
+    public int getNoPaciente() {
+        return noPaciente;
     }
 
     public String getFechaConsulta() {
         return fechaConsulta.getFecha();
     }
 
-    public Fecha getFechaConsultaObj() {
-        return fechaConsulta;
-    }
-
     public String getDiagnostico() {
         return diagnostico;
     }
 
-    public void setDiagnostico(String diagnostico) {
-        this.diagnostico = diagnostico;
-    }
-
     public String getDatos() {
-        return "Número de consulta: " + noConsulta
+        return "No. Consulta: " + noConsulta
                 + "\nId Empleado: " + idEmpleado
-                + "\nNúmero de paciente: " + noPaciente
+                + "\nNo. Paciente: " + noPaciente
                 + "\nFecha de consulta: " + fechaConsulta.getFecha()
                 + "\nDiagnóstico: " + diagnostico;
     }

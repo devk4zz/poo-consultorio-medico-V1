@@ -14,9 +14,9 @@ public class Especialista extends Medico {
 
     public Especialista() {
         super();
-        this.especialidad = "";
-        this.area = "";
-        this.enfermera_o = "";
+        this.especialidad = "Sin especialidad";
+        this.area = "Sin área";
+        this.enfermera_o = "Sin asignar";
     }
 
     public Especialista(String idEmpleado, String nombre,
@@ -46,36 +46,28 @@ public class Especialista extends Medico {
         this.enfermera_o = enfermera_o;
     }
 
-    public String getEspecialidad() {
-        return especialidad;
-    }
-
     public void setEspecialidad(String especialidad) {
         this.especialidad = especialidad;
-    }
-
-    public String getArea() {
-        return area;
     }
 
     public void setArea(String area) {
         this.area = area;
     }
 
-    public String getEnfermera() {
-        return enfermera_o;
-    }
-
     public void setEnfermera(String enfermera_o) {
         this.enfermera_o = enfermera_o;
     }
 
-    public String getEnfermera_o() {
-        return enfermera_o;
+    public String getEspecialidad() {
+        return especialidad;
     }
 
-    public void setEnfermera_o(String enfermera_o) {
-        this.enfermera_o = enfermera_o;
+    public String getArea() {
+        return area;
+    }
+
+    public String getEnfermera() {
+        return enfermera_o;
     }
 
     @Override

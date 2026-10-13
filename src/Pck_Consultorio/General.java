@@ -13,8 +13,8 @@ public class General extends Medico {
 
     public General() {
         super();
-        this.turno = "";
-        this.consultorio = 0;
+        this.turno = "Matutino";
+        this.consultorio = 1;
     }
 
     public General(String idEmpleado, String nombre,
@@ -42,20 +42,20 @@ public class General extends Medico {
         this.consultorio = consultorio;
     }
 
-    public String getTurno() {
-        return turno;
-    }
-
     public void setTurno(String turno) {
         this.turno = turno;
     }
 
-    public int getConsultorio() {
-        return consultorio;
-    }
-
     public void setConsultorio(int consultorio) {
         this.consultorio = consultorio;
+    }
+
+    public String getTurno() {
+        return turno;
+    }
+
+    public int getConsultorio() {
+        return consultorio;
     }
 
     @Override

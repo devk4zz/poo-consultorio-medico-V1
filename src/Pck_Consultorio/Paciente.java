@@ -6,7 +6,9 @@
  */
 package Pck_Consultorio;
 
-public class Paciente {
+import java.io.Serializable;
+
+public class Paciente implements Serializable {
 
     private int noPaciente;
     private String nombre;
@@ -16,12 +18,12 @@ public class Paciente {
     private String correo;
 
     public Paciente() {
-        this.noPaciente = 0;
-        this.nombre = "";
-        this.direccion = "";
-        this.telefono = "";
+        this.noPaciente = 1;
+        this.nombre = "Sin nombre";
+        this.direccion = "Sin dirección";
+        this.telefono = "0000000000";
         this.fechaNacimiento = new Fecha();
-        this.correo = "";
+        this.correo = "sin@correo.com";
     }
 
     public Paciente(int noPaciente, String nombre,
@@ -49,32 +51,16 @@ public class Paciente {
         this.correo = correo;
     }
 
-    public int getNoPaciente() {
-        return noPaciente;
-    }
-
     public void setNoPaciente(int noPaciente) {
         this.noPaciente = noPaciente;
-    }
-
-    public String getNombre() {
-        return nombre;
     }
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
 
-    public String getDireccion() {
-        return direccion;
-    }
-
     public void setDireccion(String direccion) {
         this.direccion = direccion;
-    }
-
-    public String getTelefono() {
-        return telefono;
     }
 
     public void setTelefono(String telefono) {
@@ -82,36 +68,48 @@ public class Paciente {
     }
 
     public boolean setFechaNacimiento(int dia, int mes, int anio) {
-        Fecha f = new Fecha(dia, mes, anio);
-        if (f.fechaCorrecta()) {
-            this.fechaNacimiento = f;
-            return true;
+        Fecha fecha = new Fecha(dia, mes, anio);
+        boolean correcta = fecha.fechaCorrecta();
+        if (correcta) {
+            this.fechaNacimiento = fecha;
         }
-        return false;
+        return correcta;
     }
 
     public void setFechaNacimiento(Fecha fechaNacimiento) {
         this.fechaNacimiento = fechaNacimiento;
     }
 
-    public String getFechaNacimiento() {
-        return fechaNacimiento.getFecha();
+    public void setCorreo(String correo) {
+        this.correo = correo;
     }
 
-    public Fecha getFechaNacimientoObj() {
-        return fechaNacimiento;
+    public int getNoPaciente() {
+        return noPaciente;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public String getFechaNacimiento() {
+        return fechaNacimiento.getFecha();
     }
 
     public String getCorreo() {
         return correo;
     }
 
-    public void setCorreo(String correo) {
-        this.correo = correo;
-    }
-
     public String getDatos() {
-        return "Número de paciente: " + noPaciente
+        return "No. Paciente: " + noPaciente
                 + "\nNombre: " + nombre
                 + "\nDirección: " + direccion
                 + "\nTeléfono: " + telefono

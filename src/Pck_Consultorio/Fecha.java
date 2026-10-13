@@ -4,7 +4,6 @@
  * Cruz Ortega Alexis
  * López Licona Victor Hugo
  */
-
 package Pck_Consultorio;
 
 import java.io.Serializable;
@@ -37,65 +36,50 @@ public class Fecha implements Serializable {
         return dia;
     }
 
-    public void setDia(int dia) {
-        this.dia = dia;
-    }
-
     public int getMes() {
         return mes;
-    }
-
-    public void setMes(int mes) {
-        this.mes = mes;
     }
 
     public int getAnio() {
         return anio;
     }
 
-    public void setAnio(int anio) {
-        this.anio = anio;
-    }
-
     public boolean bisiesto() {
+        boolean esBisiesto;
         if (anio % 400 == 0) {
-            return true;
+            esBisiesto = true;
         } else if (anio % 100 == 0) {
-            return false;
-        } else if (anio % 4 == 0) {
-            return true;
+            esBisiesto = false;
         } else {
-            return false;
+            esBisiesto = anio % 4 == 0;
         }
+        return esBisiesto;
     }
 
     public boolean fechaCorrecta() {
-        if (anio < 1 || mes < 1 || mes > 12 || dia < 1) {
-            return false;
-        }
-
         int diasMes;
+        boolean correcta;
 
-        if (mes == 2) {
-            if (bisiesto()) {
-                diasMes = 29;
-            } else {
-                diasMes = 28;
-            }
-        } else if (mes == 4 || mes == 6 || mes == 9 || mes == 11) {
-            diasMes = 30;
+        if (anio < 1 || mes < 1 || mes > 12 || dia < 1) {
+            correcta = false;
         } else {
-            diasMes = 31;
+            if (mes == 2) {
+                if (bisiesto()) {
+                    diasMes = 29;
+                } else {
+                    diasMes = 28;
+                }
+            } else if (mes == 4 || mes == 6 || mes == 9 || mes == 11) {
+                diasMes = 30;
+            } else {
+                diasMes = 31;
+            }
+            correcta = dia <= diasMes;
         }
-
-        return dia <= diasMes;
+        return correcta;
     }
 
     public String getFecha() {
         return dia + "/" + mes + "/" + anio;
-    }
-
-    public String getDatos() {
-        return getFecha();
     }
 }
